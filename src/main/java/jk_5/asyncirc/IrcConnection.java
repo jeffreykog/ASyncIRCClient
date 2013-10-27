@@ -31,10 +31,13 @@ public class IrcConnection {
     @Getter private String serverPassword;
 
     private final IrcConnectThread connectThread = new IrcConnectThread();
-    private Channel channel;
+    @Getter private Channel channel;
+    private final IrcHandler handler = new IrcHandler(this);
+    @Getter private final Conversation serverConversation;
 
     public IrcConnection(InetSocketAddress address){
         this.address = address;
+        this.serverConversation = new ServerConversation(address.getHostName());
     }
 
     public IrcConnection(String host){
@@ -42,7 +45,7 @@ public class IrcConnection {
     }
 
     public IrcConnection(String host, int port){
-        this.address = new InetSocketAddress(host, port);
+        this(new InetSocketAddress(host, port));
     }
 
     public IrcConnection setLoginName(String loginName){
@@ -65,8 +68,12 @@ public class IrcConnection {
         return this;
     }
 
+    public Conversation getServerConversation(){
+        return this.serverConversation;
+    }
+
     public void connect(){
-        this.connectThread.run();
+        this.connectThread.start();
     }
 
     public ChannelFuture close(){
@@ -85,16 +92,23 @@ public class IrcConnection {
 
                 private final StringDecoder decoder = new StringDecoder(CharsetUtil.UTF_8);
                 private final LineSepInsertor insertor = new LineSepInsertor();
+                private final FrameDecoder frameDecoder = new FrameDecoder();
+                private final FrameEncoder frameEncoder = new FrameEncoder();
 
                 public final void initChannel(SocketChannel channel){
+                    //Downstream
                     channel.pipeline().addLast("framer", new DelimiterBasedFrameDecoder(8192, Delimiters.lineDelimiter()));
-                    channel.pipeline().addLast("decoder", this.decoder);
+                    channel.pipeline().addLast("stringDecoder", this.decoder);
+                    channel.pipeline().addLast("frameDecoder", frameDecoder);
+                    channel.pipeline().addLast("handler", IrcConnection.this.handler);
+                    //Upstream
                     channel.pipeline().addLast("encoder", new StringEncoder(CharsetUtil.UTF_8));
                     channel.pipeline().addLast("lineSep", insertor);
+                    channel.pipeline().addLast("frameEncoder", frameEncoder);
                 }
             });
             try{
-                ChannelFuture future = bootstrap.connect(IrcConnection.this.address);
+                ChannelFuture future = bootstrap.connect(IrcConnection.this.address).syncUninterruptibly();
                 IrcConnection.this.channel = future.channel();
                 if(!future.isSuccess()) IrcConnection.this.close();
                 IrcConnection.this.channel.closeFuture().syncUninterruptibly();
