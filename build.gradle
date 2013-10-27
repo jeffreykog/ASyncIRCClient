@@ -1,0 +1,16 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+group 'jk_5.asyncirc'
+version '0.1-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'io.netty:netty-all:4.0.11.Final'
+    compile 'org.projectlombok:lombok:1.12.2'
+
+    testCompile 'junit:junit:4.11'
+}
