@@ -6,4 +6,6 @@ package jk_5.asyncirc;
  * @author jk-5
  */
 public interface ConversationListener {
+
+    public void onMessage(String sender, String message);
 }

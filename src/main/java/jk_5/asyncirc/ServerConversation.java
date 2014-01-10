@@ -7,7 +7,7 @@ package jk_5.asyncirc;
  */
 public class ServerConversation extends Conversation {
 
-    public ServerConversation(String name){
-        super(name);
+    public ServerConversation(IrcConnection connection, String name){
+        super(connection, name);
     }
 }

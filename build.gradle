@@ -9,9 +9,8 @@ repositories {
 }
 
 dependencies {
-    compile 'io.netty:netty-all:4.0.11.Final'
+    compile 'io.netty:netty-all:5.0.0.Alpha1'
     compile 'org.projectlombok:lombok:1.12.2'
-    compile 'com.google.guava:guava:15.0'
 
     testCompile 'junit:junit:4.11'
 }
