@@ -16,8 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class ConnectFuture {
 
     private final ChannelFuture future;
-    @Getter
-    private final IrcConnection connection;
+    @Getter private final IrcConnection connection;
 
     public IrcConnection sync() throws InterruptedException{
         this.future.sync();

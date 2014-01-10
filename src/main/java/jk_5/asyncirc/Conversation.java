@@ -13,10 +13,8 @@ import java.util.List;
  */
 public abstract class Conversation {
 
-    @Getter
-    private final String name;
-    @Getter
-    private final IrcConnection connection;
+    @Getter private final String name;
+    @Getter private final IrcConnection connection;
     private final List<ConversationListener> listeners = new ArrayList<ConversationListener>();
     private final List<User> users = new ArrayList<User>();
 

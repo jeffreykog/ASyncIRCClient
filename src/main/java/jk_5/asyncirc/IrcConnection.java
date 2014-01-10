@@ -33,9 +33,7 @@ public final class IrcConnection {
     @Getter private String nickName;
     @Getter private String realName;
     @Getter private String serverPassword;
-    @Getter
-    @Setter
-    private String nickservPassword;
+    @Getter @Setter private String nickservPassword;
 
     @Getter @Setter private Charset charset = Charset.defaultCharset();
     @Getter private Channel channel;
@@ -242,7 +240,7 @@ public final class IrcConnection {
         }
 
         @Override
-        protected void messageReceived(ChannelHandlerContext ctx, String msg) throws Exception{
+        protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception{
             handleLine(msg);
         }
     }
