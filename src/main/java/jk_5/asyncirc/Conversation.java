@@ -43,6 +43,36 @@ public abstract class Conversation {
         }
     }
 
+    void fireOnJoin(User u){
+        for(ConversationListener listener : this.listeners){
+            listener.onJoin(u);
+        }
+    }
+
+    void fireOnMode(User u, String change){
+        for(ConversationListener listener : this.listeners){
+            listener.onMode(u, change);
+        }
+    }
+
+    void fireOnNick(User u, String oldNick){
+        for(ConversationListener listener : this.listeners){
+            listener.onNick(u, oldNick);
+        }
+    }
+
+    void fireOnPart(User u, String message){
+        for(ConversationListener listener : this.listeners){
+            listener.onPart(u, message);
+        }
+    }
+
+    void fireOnKick(User u, String message){
+        for(ConversationListener listener : this.listeners){
+            listener.onKick(u, message);
+        }
+    }
+
     public void kickUser(String user, String reason){
 
     }
@@ -52,39 +82,33 @@ public abstract class Conversation {
     }
 
     void onJoin(String nickName, String mode){
-        this.users.add(new User(nickName, mode));
+        User u = new User(nickName, mode);
+        this.users.add(u);
+        this.fireOnJoin(u);
     }
 
     void onMode(String user, String mode){
-        for(User u : this.users){
-            if(u.getNickName().equals(user)){
-                u.onMode(mode);
-            }
-        }
+        User u = this.getUserFromNickname(user);
+        u.onMode(mode);
+        this.fireOnMode(u, mode);
     }
 
     void onNick(String oldNick, String newNick){
-        for(User u : this.users){
-            if(u.getNickName().equals(oldNick)){
-                u.setNickName(newNick);
-            }
-        }
+        User u = this.getUserFromNickname(oldNick);
+        u.setNickName(newNick);
+        this.fireOnNick(u, oldNick);
     }
 
     void onPart(String nick, String message){
-        for(User u : this.users){
-            if(u.getNickName().equals(nick)){
-                this.users.remove(u);
-            }
-        }
+        User u = this.getUserFromNickname(nick);
+        this.users.remove(u);
+        this.fireOnPart(u, message);
     }
 
     void onKick(String nick, String message){
-        for(User u : this.users){
-            if(u.getNickName().equals(nick)){
-                this.users.remove(u);
-            }
-        }
+        User u = this.getUserFromNickname(nick);
+        this.users.remove(u);
+        this.fireOnKick(u, message);
     }
 
     public User getUserFromNickname(String nickname){

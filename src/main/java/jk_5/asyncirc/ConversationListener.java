@@ -7,5 +7,10 @@ package jk_5.asyncirc;
  */
 public interface ConversationListener {
 
-    public void onMessage(String sender, String message);
+    void onMessage(String sender, String message);
+    void onJoin(User user);
+    void onMode(User u, String change);
+    void onNick(User u, String oldNick);
+    void onPart(User u, String message);
+    void onKick(User u, String message);
 }

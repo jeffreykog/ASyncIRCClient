@@ -98,7 +98,6 @@ public final class IrcConnection {
     }
 
     private void handleLine(String line){
-        System.out.println(">>> " + line);
         if(line.startsWith("PING ")){
             sendRaw("PONG " + line.substring(5), true);
             return;
@@ -110,7 +109,6 @@ public final class IrcConnection {
         //String data = split[3].startsWith(":") ? split[3].substring(1) : split[3];
 
         if(operation.equals("433")){
-            System.out.println("NICKNAME IN USE!");
             this.sendRaw("NICK " + this.nickName + "_", true);
         }else if(operation.equals("004")){
             this.connected = true;
@@ -183,7 +181,6 @@ public final class IrcConnection {
             this.loginMessageQueue.add(line);
             return null;
         }else{
-            System.out.println("<<< " + line);
             return this.channel.writeAndFlush(line + "\r\n");
         }
     }
@@ -204,12 +201,6 @@ public final class IrcConnection {
     public ChannelFuture close(){
         if(this.channel == null) return null;
         ChannelFuture future = this.channel.close();
-        future.addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception{
-                //IrcConnection.this.worker.shutdownGracefully();
-            }
-        });
         return future;
     }
 
