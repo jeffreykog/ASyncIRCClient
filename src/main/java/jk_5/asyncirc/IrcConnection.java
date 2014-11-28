@@ -33,7 +33,7 @@ public final class IrcConnection {
     @Getter private String nickName;
     @Getter private String realName;
     @Getter private String serverPassword;
-    @Getter @Setter private String nickservPassword;
+    @Getter private String nickservPassword;
 
     @Getter @Setter private Charset charset = Charset.defaultCharset();
     @Getter private Channel channel;
@@ -82,6 +82,11 @@ public final class IrcConnection {
 
     public IrcConnection setServerPassword(String serverPassword){
         this.serverPassword = serverPassword;
+        return this;
+    }
+
+    public IrcConnection setNickservPassword(String nickservPassword){
+        this.nickservPassword = nickservPassword;
         return this;
     }
 
@@ -147,10 +152,10 @@ public final class IrcConnection {
             String channel = split[2];
             if(this.joinedChannels.containsKey(channel)){
                 Conversation conversation = this.joinedChannels.get(channel);
-                conversation.fireOnMessage(line.substring(1).split("!", 2)[0], line.split(":", 3)[2]);
+                conversation.onMessage(line.substring(1).split("!", 2)[0], line.split(":", 3)[2]);
             }
         }else if(operation.equals("JOIN")){
-            this.joinedChannels.get(split[2]).onJoin(source.split("!", 2)[0]);
+            this.joinedChannels.get(split[2].substring(1)).onJoin(source.split("!", 2)[0]);
         }else if(operation.equals("PART")){
             String nick = source.split("!", 2)[0];
             String message = line.split(":", 3)[2];

@@ -37,7 +37,7 @@ public abstract class Conversation {
         return this;
     }
 
-    void fireOnMessage(String sender, String message){
+    void fireOnMessage(User sender, String message){
         for(ConversationListener listener : this.listeners){
             listener.onMessage(sender, message);
         }
@@ -75,6 +75,11 @@ public abstract class Conversation {
 
     public void kickUser(String user, String reason){
 
+    }
+
+    void onMessage(String sender, String message){
+        User u = this.getUserFromNickname(sender);
+        this.fireOnMessage(u, message);
     }
 
     void onJoin(String nickName){

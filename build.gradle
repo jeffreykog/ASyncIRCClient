@@ -1,11 +1,19 @@
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'maven'
 
 group 'jk_5.asyncirc'
-version '0.1-SNAPSHOT'
+version '0.3.2-SNAPSHOT'
+
+sourceCompatibility = '1.6'
+targetCompatibility = '1.6'
 
 repositories {
     mavenCentral()
+}
+
+configurations {
+    deployerJars
 }
 
 dependencies {
@@ -13,4 +21,82 @@ dependencies {
     compile 'org.projectlombok:lombok:1.12.2'
 
     testCompile 'junit:junit:4.11'
+
+    deployerJars "org.apache.maven.wagon:wagon-ssh:2.2"
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+
+artifacts {
+    archives jar
+    archives javadocJar
+    archives sourcesJar
+}
+
+uploadArchives {
+    repositories {
+        if (project.hasProperty("deploymaven")) {
+            logger.info('Publishing to files server')
+
+            mavenDeployer {
+                configuration = configurations.deployerJars
+
+                repository(url: project.deploymaven.url) {
+                    authentication(userName: project.deploymaven.username, password: project.deploymaven.password)
+                }
+
+                pom {
+                    groupId = project.group
+                    version = project.version
+                    artifactId = project.archivesBaseName
+                    project {
+                        name project.archivesBaseName
+                        packaging 'jar'
+                        description 'Async IRC client for java, based on netty'
+                        url 'https://github.com/jk-5/ASyncIRCClient'
+
+                        scm {
+                            url 'https://github.com/jk-5/ASyncIRCClient'
+                            connection 'scm:git:git://github.com/jk-5/ASyncIRCClient.git'
+                            developerConnection 'scm:git:git@github.com:jk-5/ASyncIRCClient.git'
+                        }
+
+                        issueManagement {
+                            system 'github'
+                            url 'https://github.com/jk-5/ASyncIRCClient/issues'
+                        }
+
+                        licenses {
+                            license {
+                                name 'Eclipse Public License (EPL), Version 1.0'
+                                url 'http://www.eclipse.org/legal/epl-v10.html'
+                                distribution 'repo'
+                            }
+                        }
+
+                        developers {
+                            developer {
+                                id 'jk-5'
+                                name 'Jeffrey Kog'
+                                roles {
+                                    role 'developer'
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }else{
+            logger.info('Publishing to mavenLocal')
+            add project.repositories.mavenLocal()
+        }
+    }
 }
